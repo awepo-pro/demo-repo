@@ -70,7 +70,7 @@ namespace link_list {
 	 * contains the method of Node list using `class Node` as Node
 	 * T_type are the value type of the node of Node list, it can be container too
 	 */
-	template<typename T_type>
+	template<typename T_type, typename T_container = std::vector<T_type>>
 	class list {
 	private:
 
@@ -80,7 +80,7 @@ namespace link_list {
 		 */
 		class Node {
 		private:
-			T_type pvalue;						// value of the current pointer
+			T_container pvalue;						// value of the current pointer
 			std::shared_ptr<Node> next_ptr;		// pointer to next element
 
 		public:
@@ -88,7 +88,7 @@ namespace link_list {
 			/*
 			 * return the value of current pointer
 			 */
-			T_type val() { return pvalue; }
+			T_container val() { return pvalue; }
 
 			/*
 			 * return the reference to the pointer to next element
@@ -102,22 +102,18 @@ namespace link_list {
 			/*
 			 * constructer, initalize Node list node. A message is called to confirm.
 			 */
-			Node(const T_type &val) : pvalue(val), next_ptr(nullptr) { 
+			Node(const T_container &val) : pvalue(val), next_ptr(nullptr) { 
 				std::cout << "node " << pvalue << "is created" << std::endl; 
 			}
+
+			// Node(T_container val) : pvalue(val), next_ptr(nullptr) {
+			// 	std::cout << "ndoe " << pvalue << "is created" << std::endl;
+			// }
 
 			/*
 			 * destructer, when the smarter is deleted, Node is deleted and a message is called to confirm"
 			 */
 			~Node() { std::cout << "node " << pvalue << "is deleted!" << std::endl; }
-
-			// friend function
-
-			void print_vector(std::vector<int> &p) {
-				for (auto x : p)
-					std::cout << x << ' ';
-				std::cout << std::endl;
-			}
 		};
 
 		using ptr_val = std::shared_ptr<Node>;			// pointer type of the Node lise
@@ -125,7 +121,7 @@ namespace link_list {
 		ptr_val first;					// pointer before the first element, like dummy node
 		ptr_val last;						// pointer to the actual last element
 
-		ptr_val find_previous(T_type find_elem);
+		ptr_val find_previous(T_container find_elem);
 		bool empty();
 
 	public:
@@ -135,11 +131,11 @@ namespace link_list {
 		 */
 		list() : first(std::make_shared<Node>()), last(nullptr) {}
 
-		void push_back(T_type elem);
-		void push_front(T_type elem);
-		void erase(T_type old_elem);
+		void push_back(T_container elem);
+		void push_front(T_container elem);
+		void erase(T_container old_elem);
 		void display();
-		ptr_val search(T_type target);
+		ptr_val search(T_container target);
 		void reverse();
 	};
 
@@ -149,14 +145,14 @@ namespace link_list {
 	 * private function for refactor search() and erase()
 	 * use for check whether the element in the Node list
 	 */
-	template<typename T_type>
-	typename list<T_type>::ptr_val list<T_type>::find_previous(T_type find_elem) {
+	template<typename T_type, typename T_container>
+	typename list<T_type, T_container>::ptr_val list<T_type, T_container>::find_previous(T_container find_elem) {
 		if (empty()) {
 			std::cout << "List is empty!" << std::endl;
 			return nullptr;
 		}
 
-		list<T_type>::ptr_val t = first;
+		list<T_type, T_container>::ptr_val t = first;
 		while (t != last && t->next()->val() != find_elem) {
 			t = t->next();
 		}
@@ -170,8 +166,8 @@ namespace link_list {
 	/*
 	 * returns true if the Nodelist is empty
 	 */
-	template<typename T_type>
-	bool list<T_type>::empty() {
+	template<typename T_type, typename T_container>
+	bool list<T_type, T_container>::empty() {
 		if (last == nullptr) {
 			return true;
 		} else {
@@ -184,8 +180,8 @@ namespace link_list {
 	/*
 	 * insert element at the end of Node list
 	 */
-	template<typename T_type>
-	void list<T_type>::push_back(T_type elem) {
+	template<typename T_type, typename T_container>
+	void list<T_type, T_container>::push_back(T_container elem) {
 		if (empty()) {
 			first->next() = std::make_shared<Node>(elem);
 			last = first->next();
@@ -198,8 +194,8 @@ namespace link_list {
 	/*
 	 * insert element at the front of Node list
 	 */
-	template<typename T_type>
-	void list<T_type>::push_front(T_type elem) {
+	template<typename T_type, typename T_container>
+	void list<T_type, T_container>::push_front(T_container elem) {
 		if (empty()) {
 			first->next() = std::make_shared<Node>(elem);
 			last = first->next();
@@ -213,9 +209,9 @@ namespace link_list {
 	/*
 	 * remove the old element from the list
 	 */
-	template<typename T_type>
-	void list<T_type>::erase(T_type old_elem) {
-		list<T_type>::ptr_val t = find_previous(old_elem);
+	template<typename T_type, typename T_container>
+	void list<T_type, T_container>::erase(T_container old_elem) {
+		list<T_type, T_container>::ptr_val t = find_previous(old_elem);
 		if (t == nullptr)
 			return ;
 
@@ -232,8 +228,8 @@ namespace link_list {
 	/* 
 	 * display all the element still in the Node list
 	 */
-	template<typename T_type>
-	void list<T_type>::display() {
+	template<typename T_type, typename T_container>
+	void list<T_type, T_container>::display() {
 		if (empty()) {
 			std::cout << "nothing display!" << std::endl;
 			return ;
@@ -249,8 +245,8 @@ namespace link_list {
 	/*
 	 * find whether the element in Node list and return its pointer position 
  	 */
-	template<typename T_type>
-	typename list<T_type>::ptr_val list<T_type>::search(T_type find_elem) {
+	template<typename T_type, typename T_container>
+	typename list<T_type, T_container>::ptr_val list<T_type, T_container>::search(T_container find_elem) {
 		ptr_val find = find_previous(find_elem);
 		if (find == nullptr)
 			return nullptr;
@@ -263,8 +259,8 @@ namespace link_list {
 	/*
  	 * reverse the sequence of Node list, first and last pointer still in function
  	 */
-	template<typename T_type>
-	void list<T_type>::reverse() {
+	template<typename T_type, typename T_container>
+	void list<T_type, T_container>::reverse() {
 		if (empty()) {
 			std::cout << "List is empty!" << std::endl;
 			return ;

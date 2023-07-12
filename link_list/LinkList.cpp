@@ -26,7 +26,7 @@
 int main() {
 	// test for destructor
 	{
-		link_list::list<std::vector<int>> my_first_list;
+		link_list::list<int, std::vector<int>> my_first_list;
 		char choice;
 		std::vector<int> x;
 		std::string s;
@@ -88,12 +88,11 @@ int main() {
 					}
 				case '3' :
 					{
+						std::cout << "Enter the number(s) wanted to search: ";
 						getline(std::cin, line);
 						std::istringstream ss(line);
-						std::cout << "Enter the number(s) wanted to search: ";
 
 						while (ss >> s) {
-							std::cin >> s;
 							if (link_list::isDigit(s)) {
 								auto receive = link_list::parseNum(s);
 								x.push_back(receive);
@@ -104,11 +103,12 @@ int main() {
 						}
 						break;
 					}	
-				case '4' : 
+				case '4' :
 					my_first_list.display();
 					break;
 				case '5' : 
 					my_first_list.reverse();
+					my_first_list.display();
 					break;
 				default :
 					std::cout << "Please enter between 0~5" << std::endl;
