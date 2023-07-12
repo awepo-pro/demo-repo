@@ -1,9 +1,16 @@
 /* 
  * @brief Implementation of singly linked list 
  * 
- * Allows user to insert (front or back) and remove element
- * Allows user search element and display the link list
- * Allows user reverse the link list
+ * It is a container-like class use to emulate link list
+ * it only provides method, slight functions. 
+ * All pointers are prohibited and unenouranges
+ * 
+ * The greatest effort applied is storing container into link list
+ * but most of the method work for vector<> (ofz all the built-in type)
+ * 
+ * In the begining, it is thought to be a linked list like forward_list
+ * as more method offered, it is more like deque<> but not doubly link list
+ * worst time complexity O(n), space complexity O(1)
  */
 
 #include <iostream>
@@ -14,13 +21,19 @@
 
 /*
  * main fucntion included:
- * 	bool empty();
- *	void push_back(int elem);
- *	void push_front(int elem);
- *	void erase(int old_elem);
- *	void display();
- *	std::shared_ptr<link> search(int target);
- *	void reverse();
+ * 	 time complexity O(1) 
+ *		bool empty();
+ *		void push_back(T_container elem);
+ *		void push_front(T_container elem);
+ *		void pop_front();
+ *		void pop_back();
+ *
+ * 	 time complexity O(n)
+ * 		void erase(T_container old_elem);
+ *  	void display();
+ *		ptr_val search(T_container target);
+ *		void reverse();
+ *		void insert(int pos, T_container elem);
  */
 
 int main() {
@@ -33,13 +46,15 @@ int main() {
 		std::string line;
 
 		do {
-			std::cout << "\n1. Insert";
-			std::cout << "\n2. Delete";
-			std::cout << "\n3. Search";
-			std::cout << "\n4. Print";
-			std::cout << "\n5. Reverse";
-			std::cout << "\n0. Exit";
-			std::cout << "\n\nEnter you choice : ";
+			std::cout << "\n1. Insert"
+					  << "\n2. Delete"
+					  << "\n3. Search"
+					  << "\n4. Print"
+					  << "\n5. Reverse"
+					  << "\n6. pop front"
+					  << "\n7. pop back"
+					  << "\n0. Exit"
+					  << "\n\nEnter you choice : ";
 			std::cin >> choice;
 
 			// eatline(), cannot use cin or getline successively
@@ -71,6 +86,10 @@ int main() {
 					}
 				case '2' : 
 					{
+						if (my_first_list.empty()) {
+							std::cout << "The list is empty!" << std::endl;
+							break;
+						}
 						std::cout << "Enter the delete number(s): ";
 						getline(std::cin, line);
 						std::istringstream ss(line);
@@ -99,8 +118,8 @@ int main() {
 							} else {
 								std::cout << "Invalid input!" << std::endl;
 							}
-							my_first_list.search(x);
 						}
+						my_first_list.search(x);
 						break;
 					}	
 				case '4' :
@@ -110,8 +129,28 @@ int main() {
 					my_first_list.reverse();
 					my_first_list.display();
 					break;
+				case '6' :
+					my_first_list.pop_front();
+					my_first_list.display();
+					break;
+				case '7' : 
+					my_first_list.pop_back();
+					my_first_list.display();
+					break;
+				case '8' :
+					{
+						std::cout << "Enter the position and value wanted to add: ";
+						getline(std::cin, line);
+						std::istringstream ss(line);
+						int N, A; 
+						ss >> N;
+						while (ss >> A) {
+							x.push_back(A);
+						}
+						my_first_list.insert(N, x);
+					}
 				default :
-					std::cout << "Please enter between 0~5" << std::endl;
+					std::cout << "Please enter between 0~7" << std::endl;
 					break;
 			} 
 			x.clear();
