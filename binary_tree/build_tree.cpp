@@ -7,7 +7,8 @@ struct TreeNode {
     int val;
     TreeNode *left;
     TreeNode *right;
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x = 0) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *l, TreeNode *r) : val(x), left(l), right(r) {}
 };
 
 class binary_tree {
@@ -39,23 +40,15 @@ public:
     binary_tree(vector<int> &a) : Arr(a) {
         tree_root = build_tree(0, Arr.size() - 1);
     }
-    
-    void print_tree_BFS(TreeNode *root) {
-        queue<TreeNode *> q;
-        q.push(root);
-
-        while (q.size()) {
-            auto t = q.front();
-            q.pop();
-
-            cout << t->val << ' ';
-            if (t->left) q.push(t->left);
-            if (t->right) q.push(t->right);
-        }
-    }
 };
 
-int main() {
 
+int main() {
+    vector<int> A = {1, 2, 3, 4, 5, 6, 7};
+    binary_tree tree(A);
+
+    // inorder_print(tree.root());
     return 0;
 }
+
+
