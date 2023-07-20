@@ -45,13 +45,13 @@ template<typename T_type>
 class link_list {
 private:
 
+	static size_t *count;
 
 	/*
 	 * class Node contains value, pointer to next element, like implementing ListNode
 	 */
 	class Node {
 	private:
-		size_t *count;
 		T_type pvalue;							// value of the current pointer
 		std::shared_ptr<Node> next_ptr;		// pointer to next element
 
@@ -71,16 +71,12 @@ private:
 		/*
 		 * copy constructor (default constructor)
 		 */
-		Node(const T_type &val = 0) : pvalue(val), next_ptr(nullptr), 
-									  count(new size_t) {
-			std::cout << *count << "th node " << pvalue << " is created! "
-					  << " copy constructor without pointer!" << std::endl;
+		Node(const T_type &val = 0) : pvalue(val), next_ptr(nullptr) {
 			*count += 1;
 		}
 
 		Node(const T_type &val, std::shared_ptr<Node> next_node) : pvalue(val), 
-														   next_ptr(next_node),
-														   count(new size_t) {
+														   next_ptr(next_node) {
 
 			std::cout << *count << "th node " << pvalue << " is created! "
 					  << "copy constructor with pointer is called!" << std::endl;
@@ -88,29 +84,25 @@ private:
 		}
 
 		/*
-		 * destructer, when the smarter is deleted, Node is deleted and a message is called to 
-		 * confirm"
+		 * destructer, when the smarter is deleted, Node is deleted and a message is called 
+		 * to confirm
 		 */
 		~Node() { 
 			*count -= 1;
-			if (count == 0) {
-				std::cout << "the list's elements are all released!" << std::endl;
-				delete count;
-			}
-			else
-				std::cout << *count << "th node " << pvalue << " is deleted!" << std::endl; 
 		}
-
-		size_t cnt() { return *count; }
 	};
 
 
 
 	std::shared_ptr<Node> find_previous(T_type find_elem);
 	void destroy();
-	std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> serveral_to_linklist(const std::vector<T_type> &serveral_elem);
+
+	std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> 
+		serveral_to_linklist(const std::vector<T_type> &serveral_elem);
+
 	std::shared_ptr<Node> merge(std::shared_ptr<Node> l1, std::shared_ptr<Node> l2);
-	std::shared_ptr<Node> sort(std::shared_ptr<Node> head);		
+	std::shared_ptr<Node> sort(std::shared_ptr<Node> head);
+
 public:
 	using node_ptr = std::shared_ptr<Node>;			// pointer type of the Node list
 
@@ -126,9 +118,8 @@ public:
 	 * copy constructor, initializer_list as argument
 	 */
 	link_list(const std::initializer_list<T_type> &serveral_node) : 
-			first(std::make_shared<Node>()), last(nullptr) {
+											first(std::make_shared<Node>()), last(nullptr) {
 
-		std::cout << "initializer_list constructor is called" << std::endl;
 		for (auto t : serveral_node)
 			push_back(t);
 	}
@@ -136,10 +127,9 @@ public:
 	/*
 	 * copy constructor, vector as argument
 	 */
-	link_list(const std::vector<T_type> &serveral_node) : 
-			first(std::make_shared<Node>()), last(nullptr) {
+	link_list(const std::vector<T_type> &serveral_node) : first(std::make_shared<Node>()), 
+														  last(nullptr) {
 
-		std::cout << "const & vector constructor is called" << std::endl;
 		for (auto t : serveral_node)
 			push_back(t);
 	}
@@ -149,8 +139,6 @@ public:
 	 */
 	link_list(std::vector<T_type> &&serveral_node) noexcept : first(std::make_shared<Node>()), 
 															  last(nullptr) {
-
-		std::cout << "move constructor is called" << std::endl;
 		for (auto t : serveral_node)
 			push_back(t);
 	}
@@ -172,9 +160,7 @@ public:
 	 * that tree's first and last pointer reset
 	 */
 	link_list(link_list<T_type> &&base) : first(std::make_shared<Node>(0, base.first->next())),
-		last(base.last) {
-
-		std::cout << "move constructor used!" << std::endl;
+										  last(base.last) {
 		base.last.reset();
 		base.first->next().reset();
 	}
@@ -182,13 +168,14 @@ public:
 	/* destructor, destroy from first element, not from dummy node */
 	~link_list() {
 		destroy();
+		delete count;
 	}
 
 	// time complexity O(1) 
 	T_type front_val() { return first->next()->val(); }
 	T_type last_val() { return last->val(); }
-	size_t size() { return Node::cnt(); }
-	bool empty();
+	size_t size() { return *count; }
+	bool empty() const;
 	void push_back(T_type elem);
 
 	void push_back_range(const std::vector<T_type> &serveral_elem);
@@ -218,7 +205,7 @@ public:
 
 	// time complexity O(nlogn) to O(n^2), space complexity O(logn) 
 	void sort();		// merge sort
-	void unique();		// since need to sort first
+	void unique();		// require sorted list
 
 	// operator function
 
@@ -238,6 +225,9 @@ public:
 	template<typename A_type>
 	friend std::ostream &operator<<(std::ostream &os, const link_list<A_type> &base);
 };
+
+template<typename T_type>
+size_t *link_list<T_type>::count = new size_t(0);
 
 /*
  * data_structures function
@@ -267,7 +257,6 @@ std::string linklist_to_string(const link_list<T_type> &base) {
 template<typename T_type>
 typename link_list<T_type>::node_ptr link_list<T_type>::find_previous(T_type find_elem) {
 	if (empty()) {
-		std::cout << "List is empty!" << std::endl;
 		return nullptr;
 	}
 
@@ -276,8 +265,7 @@ typename link_list<T_type>::node_ptr link_list<T_type>::find_previous(T_type fin
 		t = t->next();
 	}
 	if (t == last) {
-		std::cout << "no such element in Node list." << std::endl;
-		return node_ptr();
+		return nullptr;
 	}
 	return t;
 }
@@ -372,10 +360,10 @@ typename link_list<T_type>::node_ptr link_list<T_type>::sort(node_ptr head) {
 // public function
 
 /*
- * returns true if the Nodelist is empty
+ * returns true if the link list is empty
  */
 template<typename T_type>
-bool link_list<T_type>::empty() {
+bool link_list<T_type>::empty() const {
 	if (last == nullptr) {
 		return true;
 	} else {
@@ -422,7 +410,6 @@ void link_list<T_type>::push_back_range(const std::vector<T_type> &serveral_elem
  */
 template<typename T_type>
 void link_list<T_type>::push_back_range(std::vector<T_type> && serveral_elem) {
-	std::cout << "move push_back_range is called" << std::endl;
 	if (serveral_elem.empty()) return ;
 
 	int start = 0;
@@ -457,8 +444,7 @@ void link_list<T_type>::push_back_range(const std::initializer_list<T_type> &ser
 
 template<typename T_type>
 void link_list<T_type>::push_back_range(typename std::vector<T_type>::iterator a, 
-	typename std::vector<T_type>::iterator b) {
-	
+										typename std::vector<T_type>::iterator b) {
 	if (first == last) return ;
 
 	typename std::vector<T_type>::iterator start = a;
@@ -509,7 +495,6 @@ void link_list<T_type>::push_front_range(const std::vector<T_type> &serveral_ele
  */
 template<typename T_type>
 void link_list<T_type>::push_front_range(std::vector<T_type> &&serveral_elem) {
-	std::cout << "push front range move function is called!" << std::endl;
 	if (serveral_elem.empty()) return ;
 
 	std::pair<node_ptr, node_ptr> ptr = serveral_to_linklist(serveral_elem);
@@ -566,14 +551,14 @@ void link_list<T_type>::insert(int pos, T_type elem) {
 template<typename T_type>
 void link_list<T_type>::display(const std::string &sentence) {
 	if (empty()) {
-		std::cout << "nothing display!" << std::endl;
+		std::cout << "link list is empty!" << std::endl;
 		return ;
 	}
 
 	node_ptr t = first;
 	std::cout << sentence;
 	while (t->next() != nullptr) {
-		std::cout << t->next()->val() << '\t';
+		std::cout << t->next()->val() << ' ';
 		t = t->next();
 	}
 	std::cout << '\n';
@@ -581,16 +566,15 @@ void link_list<T_type>::display(const std::string &sentence) {
 
 template<typename T_type>
 void link_list<T_type>::display(std::string &&sentence) {
-	std::cout << "move string is used" << std::endl;
 	if (empty()) {
-		std::cout << "nothing display!" << std::endl;
+		std::cout << "link list is empty!" << std::endl;
 		return ;
 	}
 
 	node_ptr t = first;
 	std::cout << sentence;
 	while (t->next() != nullptr) {
-		std::cout << t->next()->val() << '\t';
+		std::cout << t->next()->val() << ' ';
 		t = t->next();
 	}
 	std::cout << '\n';
@@ -603,12 +587,10 @@ template<typename T_type>
 typename link_list<T_type>::node_ptr link_list<T_type>::search(T_type find_elem) {
 	node_ptr find = find_previous(find_elem);
 	if (find == nullptr) {
-		std::cout << "not found!" << std::endl;
 		return nullptr;
 	}
 
-	if (find->next() != nullptr)
-		std::cout << "element " << find->next()->val() << " is found!" << std::endl;
+	// find never reach last, so find->next() != nullptr
 	return find->next();
 }
 
@@ -618,7 +600,6 @@ typename link_list<T_type>::node_ptr link_list<T_type>::search(T_type find_elem)
 template<typename T_type>
 void link_list<T_type>::reverse() {
 	if (empty()) {
-		std::cout << "List is empty!" << std::endl;
 		return ;
 	}
 
@@ -638,23 +619,25 @@ void link_list<T_type>::reverse() {
 }
 
 /*
- * remove the old element from the list
+ * remove the all old element int the link list
  */
 template<typename T_type>
 void link_list<T_type>::erase(T_type old_elem) {
 	link_list<T_type>::node_ptr t = find_previous(old_elem);
-	if (t == nullptr)
-		return ;
 
-	node_ptr to_be_removed = t->next();
-	t->next() = t->next()->next();
-	if (t->next() == nullptr)
-		last = t;
-	if (first == last)
-		last = nullptr;
+	while (t != nullptr) {
+		node_ptr to_be_removed = t->next();
+		t->next() = t->next()->next();
+		if (t->next() == nullptr)
+			last = t;
+		if (first == last)
+			last = nullptr;
 
-	// shared number = 1
-	to_be_removed.reset();
+		// shared number = 1
+		to_be_removed.reset();
+
+		t = find_previous(old_elem);
+	}
 }
 
 /*
@@ -663,7 +646,6 @@ void link_list<T_type>::erase(T_type old_elem) {
 template<typename T_type>
 void link_list<T_type>::pop_front() {
 	if (empty()) {
-		std::cout << "List is empty!" << std::endl;
 		return ;
 	}
 
@@ -686,7 +668,6 @@ void link_list<T_type>::pop_front() {
 template<typename T_type>
 void link_list<T_type>::pop_back() {
 	if (empty()) {
-		std::cout << "link_list is empty!" << std::endl;
 		return ;
 	}
 
@@ -730,8 +711,6 @@ template<typename T_type>
 void link_list<T_type>::unique() {
 	if (empty()) return ;
 
-	sort();
-
 	node_ptr head = first->next();
 	while (head && head->next()) {
 		while (head->val() == head->next()->val()) {
@@ -765,10 +744,15 @@ void link_list<T_type>::operator=(const link_list<T_type> &b) {
  */
 template<typename A_type>
 std::ostream &operator<<(std::ostream &os, const link_list<A_type> &base) {
+	if (base.empty()) {
+		std::cout << "the link list is empty" << std::endl;
+		return os;
+	}
+
 	for (typename link_list<A_type>::node_ptr t = base.first->next(); t != nullptr; 
 		t = t->next()) {
-		os << t->val() << '\t';
+		os << t->val() << ' ';
 	}		
-	return os << std::endl;
+	return os;
 }
 } // namespace data_structures

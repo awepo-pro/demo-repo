@@ -25,7 +25,7 @@ bool isDigit(const std::string &s) {
  * fucntion converts user input from string to floating number or integer
  * for floating number, return double type; for integer return long type
  */
-long parseNum(const std::string &s) {
+double parseNum(const std::string &s) {
 	double ret = 0;
 	bool flg = false;
 	for (const char c : s) {
@@ -37,6 +37,28 @@ long parseNum(const std::string &s) {
 	return flg ? ret : (long) ret;
 }
 
+std::string remove_back_zero(const std::string &s) {
+	std::string ret;
+	int n = s.size();
+
+	int i;
+	for (i = 0; i < n; i++) {
+		if (s[i] == '.') {
+			break;
+		}
+		ret += s[i];
+	}
+
+	int j;
+	for (j = n - 1; j >= 0 && s[j] == '0'; j--)
+		;
+
+	while (i <= j)
+		ret += s[i++];
+
+	return ret;
+}
+
 /*
  * contains the method of Node list using `class Node` as Node
  * T_type are the value type of the node of Node list, it can be container too
@@ -45,13 +67,13 @@ template<typename T_type>
 class link_list {
 private:
 
+	static size_t *count;
 
 	/*
 	 * class Node contains value, pointer to next element, like implementing ListNode
 	 */
 	class Node {
 	private:
-		size_t *count;
 		T_type pvalue;							// value of the current pointer
 		std::shared_ptr<Node> next_ptr;		// pointer to next element
 
@@ -71,16 +93,14 @@ private:
 		/*
 		 * copy constructor (default constructor)
 		 */
-		Node(const T_type &val = 0) : pvalue(val), next_ptr(nullptr), 
-									  count(new size_t) {
+		Node(const T_type &val = 0) : pvalue(val), next_ptr(nullptr) {
 			std::cout << *count << "th node " << pvalue << " is created! "
 					  << " copy constructor without pointer!" << std::endl;
 			*count += 1;
 		}
 
 		Node(const T_type &val, std::shared_ptr<Node> next_node) : pvalue(val), 
-														   next_ptr(next_node),
-														   count(new size_t) {
+														   next_ptr(next_node) {
 
 			std::cout << *count << "th node " << pvalue << " is created! "
 					  << "copy constructor with pointer is called!" << std::endl;
@@ -89,28 +109,29 @@ private:
 
 		/*
 		 * destructer, when the smarter is deleted, Node is deleted and a message is called to 
-		 * confirm"
+		 * confirm
 		 */
 		~Node() { 
 			*count -= 1;
-			if (count == 0) {
+			if (*count == 0) {
 				std::cout << "the list's elements are all released!" << std::endl;
-				delete count;
 			}
 			else
 				std::cout << *count << "th node " << pvalue << " is deleted!" << std::endl; 
 		}
-
-		size_t cnt() { return *count; }
 	};
 
 
 
 	std::shared_ptr<Node> find_previous(T_type find_elem);
 	void destroy();
-	std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> serveral_to_linklist(const std::vector<T_type> &serveral_elem);
+
+	std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> 
+		serveral_to_linklist(const std::vector<T_type> &serveral_elem);
+
 	std::shared_ptr<Node> merge(std::shared_ptr<Node> l1, std::shared_ptr<Node> l2);
 	std::shared_ptr<Node> sort(std::shared_ptr<Node> head);		
+
 public:
 	using node_ptr = std::shared_ptr<Node>;			// pointer type of the Node list
 
@@ -172,7 +193,7 @@ public:
 	 * that tree's first and last pointer reset
 	 */
 	link_list(link_list<T_type> &&base) : first(std::make_shared<Node>(0, base.first->next())),
-		last(base.last) {
+										  last(base.last) {
 
 		std::cout << "move constructor used!" << std::endl;
 		base.last.reset();
@@ -182,13 +203,15 @@ public:
 	/* destructor, destroy from first element, not from dummy node */
 	~link_list() {
 		destroy();
+		delete count;
+		std::cout << "delete count!!!" << std::endl;
 	}
 
 	// time complexity O(1) 
 	T_type front_val() { return first->next()->val(); }
 	T_type last_val() { return last->val(); }
-	size_t size() { return Node::cnt(); }
-	bool empty();
+	size_t size() { return *count; }
+	bool empty() const;
 	void push_back(T_type elem);
 
 	void push_back_range(const std::vector<T_type> &serveral_elem);
@@ -239,22 +262,27 @@ public:
 	friend std::ostream &operator<<(std::ostream &os, const link_list<A_type> &base);
 };
 
+template<typename T_type>
+size_t *link_list<T_type>::count = new size_t(0);
+
 /*
  * data_structures function
  * convert link list into string for testing program
  */
 template<typename T_type>
 std::string linklist_to_string(const link_list<T_type> &base) {
+	if (base.empty()) return "";
+
 	typename link_list<T_type>::node_ptr head = base.first->next();
 	std::string ret;
 
 	while (head != base.last) {
-		ret += std::to_string(head->val());
+		ret += remove_back_zero(std::to_string(head->val()));
 		ret += ' ';
 		head = head->next();
 	}
 
-	ret += std::to_string(head->val());
+	ret += remove_back_zero(std::to_string(head->val()));
 	return ret;
 }
 
@@ -277,7 +305,7 @@ typename link_list<T_type>::node_ptr link_list<T_type>::find_previous(T_type fin
 	}
 	if (t == last) {
 		std::cout << "no such element in Node list." << std::endl;
-		return node_ptr();
+		return nullptr;
 	}
 	return t;
 }
@@ -375,7 +403,7 @@ typename link_list<T_type>::node_ptr link_list<T_type>::sort(node_ptr head) {
  * returns true if the Nodelist is empty
  */
 template<typename T_type>
-bool link_list<T_type>::empty() {
+bool link_list<T_type>::empty() const {
 	if (last == nullptr) {
 		return true;
 	} else {
@@ -573,7 +601,7 @@ void link_list<T_type>::display(const std::string &sentence) {
 	node_ptr t = first;
 	std::cout << sentence;
 	while (t->next() != nullptr) {
-		std::cout << t->next()->val() << '\t';
+		std::cout << t->next()->val() << ' ';
 		t = t->next();
 	}
 	std::cout << '\n';
@@ -590,7 +618,7 @@ void link_list<T_type>::display(std::string &&sentence) {
 	node_ptr t = first;
 	std::cout << sentence;
 	while (t->next() != nullptr) {
-		std::cout << t->next()->val() << '\t';
+		std::cout << t->next()->val() << ' ';
 		t = t->next();
 	}
 	std::cout << '\n';
@@ -638,23 +666,25 @@ void link_list<T_type>::reverse() {
 }
 
 /*
- * remove the old element from the list
+ * remove the all old element int the link list
  */
 template<typename T_type>
 void link_list<T_type>::erase(T_type old_elem) {
 	link_list<T_type>::node_ptr t = find_previous(old_elem);
-	if (t == nullptr)
-		return ;
 
-	node_ptr to_be_removed = t->next();
-	t->next() = t->next()->next();
-	if (t->next() == nullptr)
-		last = t;
-	if (first == last)
-		last = nullptr;
+	while (t != nullptr) {
+		node_ptr to_be_removed = t->next();
+		t->next() = t->next()->next();
+		if (t->next() == nullptr)
+			last = t;
+		if (first == last)
+			last = nullptr;
 
-	// shared number = 1
-	to_be_removed.reset();
+		// shared number = 1
+		to_be_removed.reset();
+
+		t = find_previous(old_elem);
+	}
 }
 
 /*
@@ -730,8 +760,6 @@ template<typename T_type>
 void link_list<T_type>::unique() {
 	if (empty()) return ;
 
-	sort();
-
 	node_ptr head = first->next();
 	while (head && head->next()) {
 		while (head->val() == head->next()->val()) {
@@ -765,10 +793,14 @@ void link_list<T_type>::operator=(const link_list<T_type> &b) {
  */
 template<typename A_type>
 std::ostream &operator<<(std::ostream &os, const link_list<A_type> &base) {
+	if (base.empty()) {
+		std::cout << "the link list is empty" << std::endl;
+		return os;
+	}
 	for (typename link_list<A_type>::node_ptr t = base.first->next(); t != nullptr; 
 		t = t->next()) {
-		os << t->val() << '\t';
+		os << t->val() << ' ';
 	}		
-	return os << std::endl;
+	return os;
 }
 } // namespace data_structures

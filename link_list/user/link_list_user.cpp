@@ -17,7 +17,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "link_list.hpp"
+#include "link_list_user.hpp"
 
 /*
  * T_type -> any built-in type, not container
@@ -53,10 +53,10 @@
  *		ptr_val search(T_type target);
  *		void reverse();
  *		void insert(int pos, T_type elem);
+ * 		void unique()				// require sort() first
  *
  *	time complexity O(nlogn) - O(n^2):
  * 		void sort()
- * 		void unique()				// require sort() first
  */
 
 int main() {
@@ -73,6 +73,8 @@ int main() {
     listA.pop_back();
     listA.pop_back();
     listA.display();
+
+    std::cout << "the size of listA: ----------------------------------" << listA.size() << std::endl;
     
     std::cout << "clear listA" << std::endl;
     listA.clear();
@@ -94,10 +96,13 @@ int main() {
     integer_list.push_back_range(std::move(integer_vector_B));
     integer_list.display("integer_list contains: ");
 
-
     std::cout << "remove duplicated element" << std::endl;
     integer_list.unique();
     integer_list.display("integer_list contains: "); 
+    std::cout << "sort and unique" << std::endl;
+    integer_list.sort();
+    integer_list.unique();
+    integer_list.display("integer_list contains: ");
 
     std::cout << "insert elements at front:" << std::endl;
     integer_list.push_front(100);
@@ -123,9 +128,18 @@ int main() {
     integer_list.sort();
     integer_list.display();
 
+    std::cout << "search elements in link list" << std::endl;
+    if (integer_list.search(200) == nullptr)
+        std::cout << "200 is not in link list" << std::endl;
+    else
+        std::cout << "found 200 !" << std::endl;
+
+
     std::cout << "clear integer_list" << std::endl
               << "----------------------------------------" << std::endl
               << std::endl;
+    integer_list.clear();
+    std::cout << integer_list << std::endl;
 
 	return 0;
 }
