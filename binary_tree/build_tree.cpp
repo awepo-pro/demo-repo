@@ -3,6 +3,14 @@
 #include <iostream>
 using namespace std;
 
+/*
+         4
+       /   \
+      2     6  
+     / \   / \
+    1   3  5  7
+*/
+
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -21,6 +29,8 @@ private:
 
     // due to the implementation, the sequence of tree will
     // prefectly match with the original array by inorder
+    // if the vector passed is in ascending order,
+    // it build a binary search tree!
     TreeNode* build_tree(int low, int high) {
         if(low > high) return nullptr;
 
@@ -47,7 +57,8 @@ int main() {
     vector<int> A = {1, 2, 3, 4, 5, 6, 7};
     binary_tree tree(A);
 
-    // inorder_print(tree.root());
+    // postorder(tree.root());
+   
     return 0;
 }
 
