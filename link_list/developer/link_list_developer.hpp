@@ -37,6 +37,9 @@ double parseNum(const std::string &s) {
 	return flg ? ret : (long) ret;
 }
 
+/* 
+ * remove zero at the back of the string (double convert into string)
+ */
 std::string remove_back_zero(const std::string &s) {
 	std::string ret;
 	int n = s.size();

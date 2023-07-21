@@ -74,8 +74,6 @@ int main() {
     listA.pop_back();
     listA.display();
 
-    std::cout << "the size of listA: ----------------------------------" << listA.size() << std::endl;
-    
     std::cout << "clear listA" << std::endl;
     listA.clear();
     listA.display();
