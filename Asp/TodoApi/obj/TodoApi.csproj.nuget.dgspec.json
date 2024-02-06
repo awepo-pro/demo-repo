@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/helloawepoworld/Downloads/TodoApi/TodoApi.csproj": {}
+    "/Users/helloawepoworld/Downloads/demo-repo/Asp/TodoApi/TodoApi.csproj": {}
   },
   "projects": {
-    "/Users/helloawepoworld/Downloads/TodoApi/TodoApi.csproj": {
+    "/Users/helloawepoworld/Downloads/demo-repo/Asp/TodoApi/TodoApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/helloawepoworld/Downloads/TodoApi/TodoApi.csproj",
+        "projectUniqueName": "/Users/helloawepoworld/Downloads/demo-repo/Asp/TodoApi/TodoApi.csproj",
         "projectName": "TodoApi",
-        "projectPath": "/Users/helloawepoworld/Downloads/TodoApi/TodoApi.csproj",
+        "projectPath": "/Users/helloawepoworld/Downloads/demo-repo/Asp/TodoApi/TodoApi.csproj",
         "packagesPath": "/Users/helloawepoworld/.nuget/packages/",
-        "outputPath": "/Users/helloawepoworld/Downloads/TodoApi/obj/",
+        "outputPath": "/Users/helloawepoworld/Downloads/demo-repo/Asp/TodoApi/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/helloawepoworld/.nuget/NuGet/NuGet.Config"
